@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+* {
+    padding: 0;
+    margin: 0;
+
+    user-select: none;
+}
+
+#TopBar {
+    display: flex;
+
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8em;
+
+    width: 100vw;
+
+    padding: 0 1.5em;
+
+    background-color: #22242e;
+    color: lightgray;
+
+    justify-content: space-between;
+    align-items: center;
+}
+
+#TopBar #LeftContent #OptionsBar {
+    margin: 0;
+    padding: 0;
+}
+
+#TopBar #LeftContent #OptionsBar li {
+    display: inline-block;
+
+    padding: 1em 0.7em;
+}
+
+#TopBar #LeftContent #OptionsBar li:hover {
+    background-color: #2d2f3a;
+
+    border-radius: 7px;
+}
+
+#TopBar #MidContent {
+    padding: 1em 0;
+}
+
+#TopBar #LeftContent, #TopBar #RightContent {
+    flex: 1;
+}
+
+.CodeMirror {
+    width: 100vw;
+    height: 55em;
+
+    padding-top: 10px;
+}
