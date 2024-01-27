@@ -1,19 +1,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 * {
+    font-family: 'Inter', sans-serif;
+
     padding: 0;
     margin: 0;
 
     user-select: none;
 }
 
+body, html {
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+}
+
+#MainContainer {
+    display: flex;
+
+    height: 100vh;
+
+    flex-direction: column;
+}
+
 #TopBar {
     display: flex;
 
-    font-family: 'Inter', sans-serif;
     font-size: 0.8em;
-
-    width: 100vw;
 
     padding: 0 1.5em;
 
@@ -49,9 +63,66 @@
     flex: 1;
 }
 
+#CodeContainer {
+    height: 70%;
+}
+
 .CodeMirror {
     width: 100vw;
-    height: 55em;
+    height: 100%;
+}
 
-    padding-top: 10px;
+.CodeMirror-scroll {
+    height: 100%;
+}
+
+#ToggleWindows {
+    background-color: #22242e;
+
+    width: 100%;
+    height: 30%;
+
+    padding: 0 0.5em;
+}
+
+#ToggleWindowOptions {
+    padding: 0.65em 1em;
+}
+
+#ToggleWindowOptions #OptionsList li {
+    display: inline-block;
+
+    font-family: 'Inter', sans-serif;
+    font-size: 0.65em;
+
+    color: #707070;
+    padding-bottom: 0.5em;
+}
+
+#ToggleWindowOptions #OptionsList li.selected {
+    color: #999999;
+
+    border-bottom: 2px solid #215769;
+}
+
+#ToggleWindowOptions #OptionsList li:hover {
+    color: #8f8f8f;
+}
+
+#ToggleWindows #MultiWindows {
+    font-size: small;
+
+    height: 100%;
+
+    padding: 0.65em 2em 0.65em 1em;
+
+    color: #b4b4b4;
+}
+
+#ToggleWindows #MultiWindows .OutputBox .Sucess, #ToggleWindows #MultiWindows .OutputBox .Error {
+    margin: 5px 0;
+}
+
+#ToggleWindows #MultiWindows .OutputBox .Error {
+    color: #e20101;
 }
