@@ -1,0 +1,47 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+#root {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+h1 {
+    text-align: center;
+    margin: 0;
+    padding: 1em;
+    background-color: #282c34;
+    color: white;
+}
+
+.editor-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+  
+.main-content {
+    display: flex;
+    flex-grow: 1;
+}
+
+.side-bar {
+    flex-shrink: 0;
+}
+
+.editor-container {
+    flex-grow: 1;
+}
+  
+  
