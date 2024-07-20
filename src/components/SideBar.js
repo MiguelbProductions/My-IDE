@@ -1,18 +1,17 @@
 import React from 'react';
-import './SideBar.css';
+import styled from 'styled-components';
 
-const SideBar = ({ files, openFile }) => {
+const SideBarContainer = styled.div`
+  width: 200px;
+  background-color: ${({ theme }) => theme.sidebarBackground};
+  color: ${({ theme }) => theme.text};
+  padding: 10px;
+  border-right: 1px solid ${({ theme }) => theme.separeteBorder}
+`;
+
+const SideBar = () => {
   return (
-    <div className="side-bar">
-      <h2>Workspace</h2>
-      <ul>
-        {files.map((file, index) => (
-          <li key={index} onClick={() => openFile(file)}>
-            {file}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <SideBarContainer></SideBarContainer>
   );
 };
 

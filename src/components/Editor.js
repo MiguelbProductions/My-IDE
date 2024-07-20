@@ -1,7 +1,16 @@
 import React, { useRef, useEffect } from 'react';
 import * as monaco from 'monaco-editor';
+import styled from 'styled-components';
 
-const Editor = ({ content, setContent }) => {
+const EditorContainer = styled.div`
+  flex-grow: 1;
+  background-color: ${({ theme }) => theme.editorBackground};
+  color: ${({ theme }) => theme.text};
+  padding: 10px;
+  height: calc(100vh - 60px); /* Adjust based on your header height */
+`;
+
+const Editor = ({ content, setContent, theme }) => {
   const editorRef = useRef(null);
   const monacoRef = useRef(null);
 
@@ -10,7 +19,7 @@ const Editor = ({ content, setContent }) => {
       monacoRef.current = monaco.editor.create(editorRef.current, {
         value: content,
         language: 'javascript',
-        theme: 'vs-dark'
+        theme: theme === 'light' ? 'vs-light' : 'vs-dark',
       });
 
       monacoRef.current.onDidChangeModelContent(() => {
@@ -18,7 +27,15 @@ const Editor = ({ content, setContent }) => {
         setContent(value);
       });
     }
+    return () => monacoRef.current && monacoRef.current.dispose();
   }, []);
+
+  useEffect(() => {
+    if (monacoRef.current) {
+      const currentTheme = theme === 'light' ? 'vs-light' : 'vs-dark';
+      monaco.editor.setTheme(currentTheme);
+    }
+  }, [theme]);
 
   useEffect(() => {
     if (monacoRef.current) {
@@ -30,12 +47,7 @@ const Editor = ({ content, setContent }) => {
     }
   }, [content]);
 
-  return (
-    <div
-      ref={editorRef}
-      style={{ height: '100%', width: '100%' }}
-    ></div>
-  );
+  return <EditorContainer ref={editorRef} />;
 };
 
 export default Editor;

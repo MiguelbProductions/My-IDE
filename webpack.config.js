@@ -7,6 +7,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
+    publicPath: '/', // Garante que os caminhos relativos estão corretos
   },
   module: {
     rules: [
@@ -22,8 +23,16 @@ module.exports = {
         use: ['style-loader', 'css-loader'],
       },
       {
-        test: /\.ttf$/,
-        use: ['file-loader'],
+        test: /\.(png|jpg|gif|svg)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              outputPath: 'images/',
+            },
+          },
+        ],
       },
     ],
   },
@@ -31,16 +40,16 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './public/index.html',
     }),
-    new MonacoWebpackPlugin(),
+    new MonacoWebpackPlugin({
+      languages: ['javascript', 'typescript', 'python', 'html', 'css', 'json'], // Adicione os idiomas que você precisa
+    }),
   ],
-  resolve: {
-    extensions: ['.js', '.jsx'],
-  },
   devServer: {
     static: {
       directory: path.join(__dirname, 'dist'),
     },
     compress: true,
     port: 3000,
+    historyApiFallback: true, // Garante que o roteamento funciona corretamente
   },
 };

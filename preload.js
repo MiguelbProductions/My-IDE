@@ -1,7 +1,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electron', {
-  openFile: () => ipcRenderer.invoke('open-file'),
-  readFile: (filePath) => ipcRenderer.invoke('read-file', filePath),
-  saveFile: (filePath, content) => ipcRenderer.invoke('save-file', { filePath, content })
+  openFile: () => ipcRenderer.invoke('dialog:openFile'),
+  saveFile: (filePath, content) => ipcRenderer.invoke('dialog:saveFile', filePath, content),
+  saveFileAs: (content) => ipcRenderer.invoke('dialog:saveFileAs', content)
 });
+
+console.log('Preload script loaded'); // Adiciona log para depuração
