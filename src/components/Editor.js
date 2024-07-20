@@ -28,7 +28,6 @@ const Editor = ({ content, setContent, activeFile, theme }) => {
       });
 
       monacoRef.current.onDidChangeModelContent(() => {
-        console.log("SAVE:" + activeFileRef.current)
         const value = monacoRef.current.getValue();
         setContent(activeFileRef.current, value);
       });

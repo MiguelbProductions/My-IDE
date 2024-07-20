@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const isDev = true;
@@ -36,7 +36,24 @@ function createWindow() {
   });
 }
 
-app.on('ready', createWindow);
+app.on('ready', () => {
+  createWindow();
+
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    let csp = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'";
+    
+    if (isDev) {
+      csp = "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'";
+    }
+
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [csp]
+      }
+    });
+  });
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -65,14 +82,11 @@ ipcMain.handle('dialog:saveFile', async (event, filePath, content) => {
     console.log('Saving file in Electron main process:', filePath);
     console.log('Content to save:', content);
 
-    // Write the content to the file
     fs.writeFileSync(filePath, content, 'utf8');
 
-    // Read the content back to verify
     const verifyContent = fs.readFileSync(filePath, 'utf8');
     console.log('Verified file content after saving:', verifyContent);
 
-    // Check if the saved content matches the expected content
     if (verifyContent !== content) {
       throw new Error('Content mismatch after saving');
     }
@@ -82,9 +96,9 @@ ipcMain.handle('dialog:saveFile', async (event, filePath, content) => {
   }
 });
 
-ipcMain.handle('dialog:saveFileAs', async (event, fileName, content) => {
+ipcMain.handle('dialog:saveFileAs', async (event, content) => {
   const result = await dialog.showSaveDialog({
-    defaultPath: fileName,
+    defaultPath: 'untitled.txt',
     properties: ['createDirectory']
   });
   if (result.canceled) return null;
@@ -93,14 +107,11 @@ ipcMain.handle('dialog:saveFileAs', async (event, fileName, content) => {
     console.log('Saving file as in Electron main process:', filePath);
     console.log('Content to save:', content);
 
-    // Write the content to the file
     fs.writeFileSync(filePath, content, 'utf8');
 
-    // Read the content back to verify
     const verifyContent = fs.readFileSync(filePath, 'utf8');
     console.log('Verified file content after saving as:', verifyContent);
 
-    // Check if the saved content matches the expected content
     if (verifyContent !== content) {
       throw new Error('Content mismatch after saving as');
     }
@@ -108,5 +119,14 @@ ipcMain.handle('dialog:saveFileAs', async (event, fileName, content) => {
     return filePath;
   } catch (error) {
     console.error('Error saving file as in Electron main process:', error);
+    return null;
   }
+});
+
+ipcMain.on('new-window', () => {
+  createWindow();
+});
+
+ipcMain.on('exit-app', () => {
+  app.quit();
 });

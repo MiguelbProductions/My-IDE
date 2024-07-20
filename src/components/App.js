@@ -23,11 +23,20 @@ const EditorSection = styled.div`
   flex-grow: 1;
 `;
 
+const Placeholder = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 1.5em;
+  color: ${({ theme }) => theme.text};
+`;
+
 const App = ({ toggleTheme, theme }) => {
   const [content, setContent] = useState('');
   const openFilesRef = useRef([]);
   const activeFileRef = useRef(null);
-  const [autoSave, setAutoSave] = useState(false);
+  const autoSaveRef = useRef(false);
   const [, setRender] = useState({});
 
   const forceUpdate = () => setRender({});
@@ -58,7 +67,8 @@ const App = ({ toggleTheme, theme }) => {
     openFilesRef.current = openFilesRef.current.map(file =>
       file.name === fileName ? { ...file, content: fileContent, path: filePath || file.path } : file
     );
-    if (autoSave) {
+
+    if (autoSaveRef.current) {
       const file = openFilesRef.current.find(f => f.name === fileName);
       if (file && file.path) {
         saveFile(file.path, fileContent);
@@ -79,6 +89,11 @@ const App = ({ toggleTheme, theme }) => {
     }
   };
 
+  const toggleAutoSave = () => {
+    autoSaveRef.current = !autoSaveRef.current;
+    forceUpdate();
+  };
+
   return (
     <AppContainer>
       <MenuBar
@@ -89,20 +104,25 @@ const App = ({ toggleTheme, theme }) => {
         files={openFilesRef.current}
         activeFile={activeFileRef.current}
         updateFileContent={updateFileContent}
-        autoSave={autoSave}
-        setAutoSave={setAutoSave}
+        autoSave={autoSaveRef.current}
+        setAutoSave={toggleAutoSave}
       />
       <MainContent>
         <SideBar />
         <EditorSection>
           <OpenFilesBar openFiles={openFilesRef.current} activeFile={activeFileRef.current} setActiveFile={handleTabClick} />
-          <Editor
+          {activeFileRef.current ? (
+            <Editor
             content={content}
             setContent={handleEditorChange}
             activeFile={activeFileRef.current}
             theme={theme}
             language={activeFileRef.current && openFilesRef.current.find(file => file.name === activeFileRef.current)?.language}
           />
+          ) : (
+            <Placeholder>No file selected. Please open or create a new file to start editing.</Placeholder>
+          )}
+
         </EditorSection>
       </MainContent>
     </AppContainer>

@@ -53,7 +53,8 @@ export const saveFile = async (filePath, content) => {
 
 export const saveFileAs = async (fileName, content) => {
   if (isElectron()) {
-    const filePath = await window.electron.saveFileAs(fileName, content);
+    const filePath = await window.electron.saveFileAs(content);
+    console.log(filePath); // Verifique se o caminho do arquivo é retornado corretamente
     return filePath;
   } else {
     const blob = new Blob([content], { type: 'text/plain' });

@@ -8,15 +8,14 @@ const FloatMenuContainer = styled.div`
   left: 10px; /* Ajuste conforme necessário */
   background: ${({ theme }) => theme.body};
   color: ${({ theme }) => theme.text};
-  border: 1px solid #ccc;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   width: 200px;
-  padding: 10px;
+  padding: 6px 0
 `;
 
 const MenuItem = styled.div`
-  padding: 8px;
+  padding: 8px 10px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;

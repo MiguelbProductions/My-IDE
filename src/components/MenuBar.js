@@ -3,7 +3,7 @@ import { openFile, readFile, saveFile, saveFileAs } from '../utils/fileUtils';
 import styled from 'styled-components';
 import FloatMenu from './FloatMenu';
 import { isElectron } from '../utils/environment';
-import { FaSun, FaMoon, FaCheck } from 'react-icons/fa';
+import { FaSun, FaMoon } from 'react-icons/fa';
 
 const MenuBarContainer = styled.div`
   display: flex;
@@ -54,8 +54,9 @@ const getFileLanguage = (fileName) => {
   }
 };
 
-const MenuBar = ({ setContent, toggleTheme, theme, addFileToOpenFiles, files, activeFile, updateFileContent, autoSave, setAutoSave }) => {
+const MenuBar = ({ setContent, toggleTheme, theme, addFileToOpenFiles, files, activeFile, updateFileContent, setAutoSave }) => {
   const [showMenu, setShowMenu] = useState(false);
+  const [autoSave, setLocalAutoSave] = useState(false);
 
   const handleMenuToggle = () => {
     setShowMenu(!showMenu);
@@ -69,8 +70,7 @@ const MenuBar = ({ setContent, toggleTheme, theme, addFileToOpenFiles, files, ac
         break;
       case 'new-window':
         if (isElectron()) {
-          const { ipcRenderer } = window.require('electron');
-          ipcRenderer.send('new-window');
+          window.electron.newWindow();
         } else {
           alert('Esta funcionalidade só está disponível no aplicativo Electron.');
         }
@@ -91,7 +91,9 @@ const MenuBar = ({ setContent, toggleTheme, theme, addFileToOpenFiles, files, ac
               await saveFile(file.path, file.content);
             } else {
               const filePath = await saveFileAs(file.name, file.content);
-              updateFileContent(activeFile, file.content, filePath);
+              if (filePath) {
+                updateFileContent(activeFile, file.content, filePath);
+              }
             }
           }
         }
@@ -101,17 +103,19 @@ const MenuBar = ({ setContent, toggleTheme, theme, addFileToOpenFiles, files, ac
           const file = files.find(f => f.name === activeFile);
           if (file) {
             const filePath = await saveFileAs(file.name, file.content);
-            updateFileContent(activeFile, file.content, filePath);
+            if (filePath) {
+              updateFileContent(activeFile, file.content, filePath);
+            }
           }
         }
         break;
       case 'toggle-auto-save':
-        setAutoSave(!autoSave);
+        setLocalAutoSave(!autoSave);
+        setAutoSave();
         break;
       case 'exit':
         if (isElectron()) {
-          const { ipcRenderer } = window.require('electron');
-          ipcRenderer.send('exit-app');
+          window.electron.exitApp();
         } else {
           window.close();
         }
@@ -124,7 +128,7 @@ const MenuBar = ({ setContent, toggleTheme, theme, addFileToOpenFiles, files, ac
   return (
     <MenuBarContainer>
       <MenuItem onClick={handleMenuToggle}>File</MenuItem>
-      {showMenu && <FloatMenu onClose={() => setShowMenu(false)} onOptionSelect={handleOptionSelect} autoSave={autoSave} />}
+      {showMenu && <FloatMenu onClose={() => setShowMenu(false)} onOptionSelect={handleOptionSelect} />}
       <MenuItem>Edit</MenuItem>
       <MenuItem>Selection</MenuItem>
       <MenuItem>View</MenuItem>

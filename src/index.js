@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import App from './components/App';
 import { ThemeProvider } from 'styled-components';
 import { lightTheme, darkTheme, GlobalStyles } from './theme';
@@ -19,4 +19,7 @@ const ThemedApp = () => {
   );
 };
 
-ReactDOM.render(<ThemedApp />, document.getElementById('root'));
+const container = document.getElementById('root');
+const root = createRoot(container);
+
+root.render(<ThemedApp />);
