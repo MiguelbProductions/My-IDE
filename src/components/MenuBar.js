@@ -54,7 +54,7 @@ const getFileLanguage = (fileName) => {
   }
 };
 
-const MenuBar = ({ setContent, toggleTheme, theme, addFileToOpenFiles, files, activeFile, updateFileContent, setAutoSave }) => {
+const MenuBar = ({ setContent, toggleTheme, theme, addFileToOpenFiles, files, activeFile, updateFileContent, setAutoSave, openFolder }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [autoSave, setLocalAutoSave] = useState(false);
 
@@ -82,6 +82,9 @@ const MenuBar = ({ setContent, toggleTheme, theme, addFileToOpenFiles, files, ac
           const language = getFileLanguage(file.name);
           addFileToOpenFiles(file.name, content, language, file.path);
         }
+        break;
+      case 'open-folder':
+        await openFolder();
         break;
       case 'save':
         if (activeFile) {
@@ -128,7 +131,7 @@ const MenuBar = ({ setContent, toggleTheme, theme, addFileToOpenFiles, files, ac
   return (
     <MenuBarContainer>
       <MenuItem onClick={handleMenuToggle}>File</MenuItem>
-      {showMenu && <FloatMenu onClose={() => setShowMenu(false)} onOptionSelect={handleOptionSelect} />}
+      {showMenu && <FloatMenu onClose={() => setShowMenu(false)} onOptionSelect={handleOptionSelect} autoSave={autoSave} />}
       <MenuItem>Edit</MenuItem>
       <MenuItem>Selection</MenuItem>
       <MenuItem>View</MenuItem>

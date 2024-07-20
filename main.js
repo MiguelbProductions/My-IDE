@@ -96,9 +96,9 @@ ipcMain.handle('dialog:saveFile', async (event, filePath, content) => {
   }
 });
 
-ipcMain.handle('dialog:saveFileAs', async (event, content) => {
+ipcMain.handle('dialog:saveFileAs', async (event, fileName, content) => {
   const result = await dialog.showSaveDialog({
-    defaultPath: 'untitled.txt',
+    defaultPath: fileName,
     properties: ['createDirectory']
   });
   if (result.canceled) return null;
@@ -121,6 +121,26 @@ ipcMain.handle('dialog:saveFileAs', async (event, content) => {
     console.error('Error saving file as in Electron main process:', error);
     return null;
   }
+});
+
+ipcMain.handle('dialog:openFolder', async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openDirectory']
+  });
+  if (result.canceled) return null;
+  const dirPath = result.filePaths[0];
+  const files = fs.readdirSync(dirPath);
+  return { dirPath, files };
+});
+
+ipcMain.handle('fs:readDir', async (event, dirPath) => {
+  const files = fs.readdirSync(dirPath);
+  return files;
+});
+
+ipcMain.handle('fs:readFile', async (event, filePath) => {
+  const content = fs.readFileSync(filePath, 'utf8');
+  return content;
 });
 
 ipcMain.on('new-window', () => {

@@ -22,8 +22,8 @@ const Editor = ({ content, setContent, activeFile, theme }) => {
   useEffect(() => {
     if (editorRef.current) {
       monacoRef.current = monaco.editor.create(editorRef.current, {
-        value: content,
-        language: 'javascript',
+        value: content || '',
+        language: 'javascript', // You can set the default language or make it dynamic
         theme: theme === 'light' ? 'vs-light' : 'vs-dark',
       });
 
@@ -45,9 +45,8 @@ const Editor = ({ content, setContent, activeFile, theme }) => {
   useEffect(() => {
     if (monacoRef.current) {
       const model = monacoRef.current.getModel();
-      const currentValue = model.getValue();
-      if (currentValue !== content) {
-        model.setValue(content);
+      if (model.getValue() !== (content || '')) {
+        model.setValue(content || '');
       }
     }
   }, [content]);

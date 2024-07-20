@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import MenuBar from './MenuBar';
 import SideBar from './SideBar';
 import Editor from './Editor';
 import OpenFilesBar from './OpenFilesBar';
 import styled from 'styled-components';
-import { saveFile } from '../utils/fileUtils';
+import { saveFile, openFolder, readDir, readFile, getFileLanguage } from '../utils/fileUtils';
 
 const AppContainer = styled.div`
   display: flex;
@@ -34,52 +34,50 @@ const Placeholder = styled.div`
 
 const App = ({ toggleTheme, theme }) => {
   const [content, setContent] = useState('');
-  const openFilesRef = useRef([]);
-  const activeFileRef = useRef(null);
-  const autoSaveRef = useRef(false);
-  const [, setRender] = useState({});
-
-  const forceUpdate = () => setRender({});
+  const [openFiles, setOpenFiles] = useState([]);
+  const [activeFile, setActiveFile] = useState(null);
+  const [autoSave, setAutoSave] = useState(false);
+  const [folderFiles, setFolderFiles] = useState([]);
+  const [currentFolder, setCurrentFolder] = useState('');
 
   useEffect(() => {
-    if (activeFileRef.current) {
-      const file = openFilesRef.current.find(f => f.name === activeFileRef.current);
+    if (activeFile) {
+      const file = openFiles.find(f => f.name === activeFile);
       if (file) {
-        setContent(file.content);
+        setContent(file.content || '');
       }
     }
-  }, [activeFileRef.current, openFilesRef.current]);
+  }, [activeFile, openFiles]);
 
   const addFileToOpenFiles = (fileName, fileContent, fileLanguage, filePath) => {
     const newFile = {
       name: fileName,
-      content: fileContent,
+      content: fileContent || '',
       language: fileLanguage,
       path: filePath
     };
 
-    openFilesRef.current = [...openFilesRef.current, newFile];
-    activeFileRef.current = fileName;
-    forceUpdate();
+    setOpenFiles(prevFiles => [...prevFiles, newFile]);
+    setActiveFile(fileName);
+    setContent(fileContent || '');
   };
 
   const updateFileContent = (fileName, fileContent, filePath = null) => {
-    openFilesRef.current = openFilesRef.current.map(file =>
-      file.name === fileName ? { ...file, content: fileContent, path: filePath || file.path } : file
+    setOpenFiles(prevFiles => 
+      prevFiles.map(file =>
+        file.name === fileName ? { ...file, content: fileContent || '', path: filePath || file.path } : file
+      )
     );
-
-    if (autoSaveRef.current) {
-      const file = openFilesRef.current.find(f => f.name === fileName);
+    if (autoSave) {
+      const file = openFiles.find(f => f.name === fileName);
       if (file && file.path) {
         saveFile(file.path, fileContent);
       }
     }
-    forceUpdate();
   };
 
   const handleTabClick = (fileName) => {
-    activeFileRef.current = fileName;
-    forceUpdate();
+    setActiveFile(fileName);
   };
 
   const handleEditorChange = (fileName, newContent) => {
@@ -90,8 +88,16 @@ const App = ({ toggleTheme, theme }) => {
   };
 
   const toggleAutoSave = () => {
-    autoSaveRef.current = !autoSaveRef.current;
-    forceUpdate();
+    setAutoSave(prevAutoSave => !prevAutoSave);
+  };
+
+  const handleOpenFolder = async () => {
+    const folder = await openFolder();
+    if (folder) {
+      setCurrentFolder(folder.dirPath);
+      const files = await readDir(folder.dirPath);
+      setFolderFiles(files);
+    }
   };
 
   return (
@@ -101,28 +107,28 @@ const App = ({ toggleTheme, theme }) => {
         toggleTheme={toggleTheme}
         theme={theme}
         addFileToOpenFiles={addFileToOpenFiles}
-        files={openFilesRef.current}
-        activeFile={activeFileRef.current}
+        files={openFiles}
+        activeFile={activeFile}
         updateFileContent={updateFileContent}
-        autoSave={autoSaveRef.current}
+        autoSave={autoSave}
         setAutoSave={toggleAutoSave}
+        openFolder={handleOpenFolder}
       />
       <MainContent>
-        <SideBar />
+        <SideBar files={folderFiles} openFile={addFileToOpenFiles} currentFolder={currentFolder} />
         <EditorSection>
-          <OpenFilesBar openFiles={openFilesRef.current} activeFile={activeFileRef.current} setActiveFile={handleTabClick} />
-          {activeFileRef.current ? (
+          <OpenFilesBar openFiles={openFiles} activeFile={activeFile} setActiveFile={handleTabClick} />
+          {activeFile ? (
             <Editor
-            content={content}
-            setContent={handleEditorChange}
-            activeFile={activeFileRef.current}
-            theme={theme}
-            language={activeFileRef.current && openFilesRef.current.find(file => file.name === activeFileRef.current)?.language}
-          />
+              content={content}
+              setContent={newContent => handleEditorChange(activeFile, newContent)}
+              activeFile={activeFile}
+              theme={theme}
+              language={activeFile && openFiles.find(file => file.name === activeFile)?.language}
+            />
           ) : (
             <Placeholder>No file selected. Please open or create a new file to start editing.</Placeholder>
           )}
-
         </EditorSection>
       </MainContent>
     </AppContainer>

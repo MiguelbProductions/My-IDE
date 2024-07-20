@@ -21,16 +21,12 @@ export const openFile = async () => {
   }
 };
 
-export const readFile = async (file) => {
+export const readFile = async (filePath) => {
   if (isElectron()) {
-    return file.content;
+    const result = await window.electron.readFile(filePath);
+    return result;
   } else {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => resolve(event.target.result);
-      reader.onerror = (error) => reject(error);
-      reader.readAsText(file.content);
-    });
+    return '';
   }
 };
 
@@ -53,7 +49,7 @@ export const saveFile = async (filePath, content) => {
 
 export const saveFileAs = async (fileName, content) => {
   if (isElectron()) {
-    const filePath = await window.electron.saveFileAs(content);
+    const filePath = await window.electron.saveFileAs(fileName, content);
     console.log(filePath); // Verifique se o caminho do arquivo é retornado corretamente
     return filePath;
   } else {
@@ -64,5 +60,43 @@ export const saveFileAs = async (fileName, content) => {
     a.download = fileName;
     a.click();
     URL.revokeObjectURL(url);
+  }
+};
+
+export const openFolder = async () => {
+  if (isElectron()) {
+    const result = await window.electron.openFolder();
+    return result;
+  } else {
+    alert('Open folder is not supported in the web environment');
+    return null;
+  }
+};
+
+export const readDir = async (dirPath) => {
+  if (isElectron()) {
+    const result = await window.electron.readDir(dirPath);
+    return result;
+  } else {
+    alert('Read directory is not supported in the web environment');
+    return [];
+  }
+};
+
+export const getFileLanguage = (fileName) => {
+  const extension = fileName.split('.').pop();
+  switch (extension) {
+    case 'js':
+      return 'javascript';
+    case 'py':
+      return 'python';
+    case 'html':
+      return 'html';
+    case 'css':
+      return 'css';
+    case 'json':
+      return 'json';
+    default:
+      return 'plaintext';
   }
 };
