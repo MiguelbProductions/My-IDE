@@ -4,7 +4,7 @@ export const openFile = async () => {
   if (isElectron()) {
     const result = await window.electron.openFile();
     if (result) {
-      return { name: result.path.split('/').pop(), path: result.path, content: result.content };
+      return { name: result.path.split('\\').pop(), path: result.path, content: result.content };
     }
     return null;
   } else {
@@ -36,28 +36,31 @@ export const readFile = async (file) => {
 
 export const saveFile = async (filePath, content) => {
   if (isElectron()) {
+    console.log('Saving file in Electron environment:', filePath);
+    console.log('Content to save:', content);
     await window.electron.saveFile(filePath, content);
+    console.log('File saved successfully:', filePath);
   } else {
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = filePath || 'file.txt';
+    a.download = filePath;
     a.click();
     URL.revokeObjectURL(url);
   }
 };
 
-export const saveFileAs = async (content) => {
+export const saveFileAs = async (fileName, content) => {
   if (isElectron()) {
-    const filePath = await window.electron.saveFileAs(content);
+    const filePath = await window.electron.saveFileAs(fileName, content);
     return filePath;
   } else {
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'file.txt';
+    a.download = fileName;
     a.click();
     URL.revokeObjectURL(url);
   }

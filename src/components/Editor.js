@@ -10,9 +10,14 @@ const EditorContainer = styled.div`
   height: calc(100vh - 60px); /* Adjust based on your header height */
 `;
 
-const Editor = ({ content, setContent, theme }) => {
+const Editor = ({ content, setContent, activeFile, theme }) => {
   const editorRef = useRef(null);
   const monacoRef = useRef(null);
+  const activeFileRef = useRef(activeFile);
+
+  useEffect(() => {
+    activeFileRef.current = activeFile;
+  }, [activeFile]);
 
   useEffect(() => {
     if (editorRef.current) {
@@ -23,8 +28,9 @@ const Editor = ({ content, setContent, theme }) => {
       });
 
       monacoRef.current.onDidChangeModelContent(() => {
+        console.log("SAVE:" + activeFileRef.current)
         const value = monacoRef.current.getValue();
-        setContent(value);
+        setContent(activeFileRef.current, value);
       });
     }
     return () => monacoRef.current && monacoRef.current.dispose();

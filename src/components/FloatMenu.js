@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { FaCheck } from 'react-icons/fa';
 
 const FloatMenuContainer = styled.div`
   position: absolute;
@@ -17,6 +18,8 @@ const FloatMenuContainer = styled.div`
 const MenuItem = styled.div`
   padding: 8px;
   cursor: pointer;
+  display: flex;
+  justify-content: space-between;
 
   &:hover {
     background-color: ${({ theme }) => theme.background};
@@ -27,7 +30,7 @@ const Separator = styled.hr`
   margin: 10px 0;
 `;
 
-const FloatMenu = ({ onClose, onOptionSelect }) => {
+const FloatMenu = ({ onClose, onOptionSelect, autoSave }) => {
   const handleOptionClick = (option) => {
     onOptionSelect(option);
     onClose();
@@ -43,7 +46,9 @@ const FloatMenu = ({ onClose, onOptionSelect }) => {
       <Separator />
       <MenuItem onClick={() => handleOptionClick('save')}>Save</MenuItem>
       <MenuItem onClick={() => handleOptionClick('save-as')}>Save As</MenuItem>
-      <MenuItem onClick={() => handleOptionClick('toggle-auto-save')}>Auto Save</MenuItem>
+      <MenuItem onClick={() => handleOptionClick('toggle-auto-save')}>
+        Auto Save {autoSave && <FaCheck />}
+      </MenuItem>
       <Separator />
       <MenuItem onClick={() => handleOptionClick('exit')}>Exit</MenuItem>
     </FloatMenuContainer>

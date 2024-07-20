@@ -3,7 +3,7 @@ import { openFile, readFile, saveFile, saveFileAs } from '../utils/fileUtils';
 import styled from 'styled-components';
 import FloatMenu from './FloatMenu';
 import { isElectron } from '../utils/environment';
-import { FaSun, FaMoon } from 'react-icons/fa';
+import { FaSun, FaMoon, FaCheck } from 'react-icons/fa';
 
 const MenuBarContainer = styled.div`
   display: flex;
@@ -54,9 +54,8 @@ const getFileLanguage = (fileName) => {
   }
 };
 
-const MenuBar = ({ setContent, toggleTheme, theme, addFileToOpenFiles, files, activeFile }) => {
+const MenuBar = ({ setContent, toggleTheme, theme, addFileToOpenFiles, files, activeFile, updateFileContent, autoSave, setAutoSave }) => {
   const [showMenu, setShowMenu] = useState(false);
-  const [autoSave, setAutoSave] = useState(false);
 
   const handleMenuToggle = () => {
     setShowMenu(!showMenu);
@@ -85,20 +84,25 @@ const MenuBar = ({ setContent, toggleTheme, theme, addFileToOpenFiles, files, ac
         }
         break;
       case 'save':
-        if (activeFile && files[activeFile]) {
-          const file = files[activeFile];
-          if (file.path) {
-            await saveFile(file.path, file.content);
-          } else {
-            const filePath = await saveFileAs(file.content);
-            addFileToOpenFiles(activeFile, file.content, file.language, filePath);
+        if (activeFile) {
+          const file = files.find(f => f.name === activeFile);
+          if (file) {
+            if (file.path) {
+              await saveFile(file.path, file.content);
+            } else {
+              const filePath = await saveFileAs(file.name, file.content);
+              updateFileContent(activeFile, file.content, filePath);
+            }
           }
         }
         break;
       case 'save-as':
-        if (activeFile && files[activeFile]) {
-          const filePath = await saveFileAs(files[activeFile].content);
-          addFileToOpenFiles(activeFile, files[activeFile].content, files[activeFile].language, filePath);
+        if (activeFile) {
+          const file = files.find(f => f.name === activeFile);
+          if (file) {
+            const filePath = await saveFileAs(file.name, file.content);
+            updateFileContent(activeFile, file.content, filePath);
+          }
         }
         break;
       case 'toggle-auto-save':
@@ -120,7 +124,7 @@ const MenuBar = ({ setContent, toggleTheme, theme, addFileToOpenFiles, files, ac
   return (
     <MenuBarContainer>
       <MenuItem onClick={handleMenuToggle}>File</MenuItem>
-      {showMenu && <FloatMenu onClose={() => setShowMenu(false)} onOptionSelect={handleOptionSelect} />}
+      {showMenu && <FloatMenu onClose={() => setShowMenu(false)} onOptionSelect={handleOptionSelect} autoSave={autoSave} />}
       <MenuItem>Edit</MenuItem>
       <MenuItem>Selection</MenuItem>
       <MenuItem>View</MenuItem>
