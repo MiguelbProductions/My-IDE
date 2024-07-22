@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import MenuBar from './MenuBar';
 import SideBar from './SideBar';
 import Editor from './Editor';
@@ -50,14 +50,16 @@ const App = ({ toggleTheme, theme }) => {
   }, [activeFile, openFiles]);
 
   const addFileToOpenFiles = (fileName, fileContent, fileLanguage, filePath) => {
-    const newFile = {
-      name: fileName,
-      content: fileContent || '',
-      language: fileLanguage,
-      path: filePath
-    };
+    if (!openFiles.find(f => f.name === fileName)) {
+      const newFile = {
+        name: fileName,
+        content: fileContent || '',
+        language: fileLanguage,
+        path: filePath
+      };
 
-    setOpenFiles(prevFiles => [...prevFiles, newFile]);
+      setOpenFiles(prevFiles => [...prevFiles, newFile]);
+    }
     setActiveFile(fileName);
     setContent(fileContent || '');
   };
@@ -100,6 +102,22 @@ const App = ({ toggleTheme, theme }) => {
     }
   };
 
+  const handleCloseFile = (fileName) => {
+    setOpenFiles(prevFiles => prevFiles.filter(file => file.name !== fileName));
+    if (activeFile === fileName) {
+      const remainingFiles = openFiles.filter(file => file.name !== fileName);
+      if (remainingFiles.length > 0) {
+        const nextActiveFile = remainingFiles[0].name;
+        setActiveFile(nextActiveFile);
+        const nextFile = remainingFiles.find(f => f.name === nextActiveFile);
+        setContent(nextFile.content || '');
+      } else {
+        setActiveFile(null);
+        setContent('');
+      }
+    }
+  };
+
   return (
     <AppContainer>
       <MenuBar
@@ -117,7 +135,7 @@ const App = ({ toggleTheme, theme }) => {
       <MainContent>
         <SideBar files={folderFiles} openFile={addFileToOpenFiles} currentFolder={currentFolder} />
         <EditorSection>
-          <OpenFilesBar openFiles={openFiles} activeFile={activeFile} setActiveFile={handleTabClick} />
+          <OpenFilesBar openFiles={openFiles} activeFile={activeFile} setActiveFile={handleTabClick} closeFile={handleCloseFile} />
           {activeFile ? (
             <Editor
               content={content}

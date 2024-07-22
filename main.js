@@ -139,6 +139,7 @@ ipcMain.handle('fs:readDir', async (event, dirPath) => {
 });
 
 ipcMain.handle('fs:readFile', async (event, filePath) => {
+  console.log('Reading file path:', filePath);
   const content = fs.readFileSync(filePath, 'utf8');
   return content;
 });

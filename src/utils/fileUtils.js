@@ -23,6 +23,7 @@ export const openFile = async () => {
 
 export const readFile = async (filePath) => {
   if (isElectron()) {
+    console.log('readFile filePath:', filePath);
     const result = await window.electron.readFile(filePath);
     return result;
   } else {
@@ -50,7 +51,7 @@ export const saveFile = async (filePath, content) => {
 export const saveFileAs = async (fileName, content) => {
   if (isElectron()) {
     const filePath = await window.electron.saveFileAs(fileName, content);
-    console.log(filePath); // Verifique se o caminho do arquivo é retornado corretamente
+    console.log(filePath);
     return filePath;
   } else {
     const blob = new Blob([content], { type: 'text/plain' });

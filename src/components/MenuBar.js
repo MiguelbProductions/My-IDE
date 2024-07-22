@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { openFile, readFile, saveFile, saveFileAs } from '../utils/fileUtils';
+import { openFile, readFile, saveFile, saveFileAs, openFolder } from '../utils/fileUtils';
 import styled from 'styled-components';
 import FloatMenu from './FloatMenu';
 import { isElectron } from '../utils/environment';
@@ -78,9 +78,9 @@ const MenuBar = ({ setContent, toggleTheme, theme, addFileToOpenFiles, files, ac
       case 'open-file':
         const file = await openFile();
         if (file) {
-          const content = await readFile(file);
+          const { path, content } = file; // Extraindo path e content corretamente
           const language = getFileLanguage(file.name);
-          addFileToOpenFiles(file.name, content, language, file.path);
+          addFileToOpenFiles(file.name, content, language, path);
         }
         break;
       case 'open-folder':
